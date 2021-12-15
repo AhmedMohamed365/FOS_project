@@ -588,6 +588,8 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
 	 	 active_size = LIST_SIZE(&curenv->ActiveList);
 		 second_size = LIST_SIZE(&curenv->SecondList);
 
+		 //Adding new content :)
+
 		 struct WorkingSetElement *element = &curenv->ptr_pageWorkingSet[ curenv->page_last_WS_index+1] ;
 
 		 cprintf("work address = %x      index = %d \n",element , curenv->page_last_WS_index);
