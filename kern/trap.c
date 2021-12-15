@@ -580,9 +580,9 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
 
 
 
-//		    cprintf("%x\n",fault_va);
-//		    char*text = NULL;
-//		    readline("Working !",text);
+		    cprintf("%x\n",fault_va);
+		    char*text = NULL;
+		    readline("Working !",text);
 
 	 	 ws_size = LIST_SIZE(&curenv->PageWorkingSetList);
 	 	 active_size = LIST_SIZE(&curenv->ActiveList);
