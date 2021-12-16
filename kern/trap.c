@@ -477,6 +477,7 @@ void table_fault_handler(struct Env * curenv, uint32 fault_va)
 //Handle the page fault
 
 uint32 ws_size =0 , second_size = 0,active_size =0;
+
 void handle_lists(struct Env *env,uint32 fault_va )
 {
 
@@ -577,144 +578,590 @@ void page_fault_handler(struct Env * curenv, uint32 fault_va)
 	//TODO: [PROJECT 2021 - BONUS3] O(1) Implementation of Fault Handler
 
 	//TODO: [PROJECT 2021 - BONUS4] Change WS Size according to “Program Priority”
+		//struct WorkingSetElement *element ;
 
 
-
-		    cprintf("%x\n",fault_va);
-		    char*text = NULL;
-		    readline("Working !",text);
-
-	 	 ws_size = LIST_SIZE(&curenv->PageWorkingSetList);
-	 	 active_size = LIST_SIZE(&curenv->ActiveList);
-		 second_size = LIST_SIZE(&curenv->SecondList);
-
-		 //Adding new content :)
-
-		 struct WorkingSetElement *element = &curenv->ptr_pageWorkingSet[ curenv->page_last_WS_index+1] ;
-
-		 cprintf("work address = %x      index = %d \n",element , curenv->page_last_WS_index);
-
-		element->virtual_address = fault_va;
-
-//		 cprintf("%x\n",fault_va);
-//			    char*text = NULL;
-//			    readline("Working !",text);
-
-
-			    if(active_size < curenv->ActiveListSize)
-			    {
-
-			    	if(curenv->PageWorkingSetList.size ==0)
-			    	{
-			    		pf_add_empty_env_page(curenv,fault_va,1);
-			    	}
-			    	int ret = pf_read_env_page(curenv, (void*)fault_va);
-
-			    	 cprintf(" ret = %d \n",ret);
-			    				    char*text = NULL;
-			    				    readline("Working !",text);
-			    		    					if(ret==0)
-			    		    						{
-			    		    								struct Frame_Info *ptr_frame_info=NULL;
-			    		    								int ret2=allocate_frame(&ptr_frame_info);
-			    		    								if(ret2!=E_NO_MEM)
-			    		    								{
-
-			    		    									ret2=map_frame(curenv->env_page_directory,ptr_frame_info,(void*)fault_va,PERM_WRITEABLE);
-
-
-			    		    									//handle_lists(curenv,fault_va);
-
-
-
-			    		    								}
-
-			    }
-//	    bool foundedInMem = 0;
+//	void placement_ (struct Env * curenv, uint32 fault_va)
+//	{
+//		        struct Frame_Info *frame_info_ptr =NULL ;
+//				int ret = allocate_frame(&frame_info_ptr);
+//				if(ret!=E_NO_MEM)
+//				{
+//				  map_frame(curenv->env_page_directory ,frame_info_ptr ,(void*)fault_va,PERM_PRESENT | PERM_USER | PERM_WRITEABLE);
+//				  ret = pf_read_env_page(curenv,(void *)fault_va);
+//				  if (ret == E_PAGE_NOT_EXIST_IN_PF)
+//				  {
+//					  // CHECK if it is a stack page
+//					  if (fault_va < USTACKTOP && fault_va >= USTACKBOTTOM)
+//					  {
+//						  pf_add_empty_env_page(curenv,fault_va,0);
+//					  }
+//					  else
+//						  panic("invaild access %x",fault_va);
+//				  }
 //
-//
-//	    if( 1 ==1 )
-//	    			{
-//	    				int ret = pf_read_env_page(curenv, (void*)fault_va);
-//
-//	    					if(ret==0)
-//	    						{
-//	    								struct Frame_Info *ptr_frame_info=NULL;
-//	    								int ret2=allocate_frame(&ptr_frame_info);
-//	    								if(ret2!=E_NO_MEM)
-//	    								{
-//
-//	    									ret2=map_frame(curenv->env_page_directory,ptr_frame_info,(void*)fault_va,PERM_WRITEABLE);
-//
-//
-//	    									//handle_lists(curenv,fault_va);
-//
-//
-//
-//	    								}
-//
-//	    						}
-//
-//
-//	    						}
-
-//			if(second_size!=0)
-//			{
-//				struct WorkingSetElement *element;
-//				LIST_FOREACH(element, &(curenv->SecondList))
-//						{
-//
-//						if(fault_va == element->virtual_address)
-//						{
-//							pt_set_page_permissions(curenv,fault_va,PERM_PRESENT,0);
-//
-//
-//							LIST_REMOVE(&curenv->SecondList,element);
-//							handle_lists(curenv,fault_va);
-//							foundedInMem = 1;
+//					int size = curenv->page_WS_max_size ;
+//					for( int i =0 ; i<size;i++)
+//					{
+//						if(curenv->ptr_pageWorkingSet[curenv->page_last_WS_index].empty)
 //							break;
-//
-//
-//						}
-//
-//
-//						}
-//			}
-
-
-
-
-			//OLD
-
-//						if(curenv->SecondList==NULL)
+//						else if(curenv->ptr_pageWorkingSet[i].empty)
 //						{
-//						int ret = pf_read_env_page(curenv, fault_va);
-//						if(ret==0)
-//						{
-//						struct Frame_Info *ptr_frame_info=NULL;
-//						int ret2=allocate_frame(&ptr_frame_info);
-//						if(ret2!=E_NO_MEM)
-//						{
-//
-//							ret2=map_frame(curenv->env_page_directory,ptr_frame_info,(void*)fault_va,PERM_WRITEABLE);
-//							LIST_INSERT_HEAD(curenv->PageWorkingSetList,curenv->__uptr_pws);
-//							LIST_INSERT_HEAD(curenv->ActiveList,curenv->__uptr_pws);
-//
+//							curenv->page_last_WS_index = i ;
+//							break ;
 //						}
+//					}
+//					env_page_ws_set_entry(curenv,curenv->page_last_WS_index ,fault_va);
+//					curenv->page_last_WS_index ++ ;
+//					curenv->page_last_WS_index = curenv->page_last_WS_index %  curenv->page_WS_max_size ;
+//				}
+//	}
+	/*
+	 *
+	 *
+	 *
+	 */
+
+	cprintf("falut at = %x \n ",fault_va);
+
+	 ws_size = LIST_SIZE(&curenv->PageWorkingSetList);
+			 	 active_size = LIST_SIZE(&curenv->ActiveList);
+				 second_size = LIST_SIZE(&curenv->SecondList);
+
+				// cprintf("ws_size = %d \n active_size = %d \n  second_size = %d \n ",ws_size,active_size,second_size);
+
+	struct WorkingSetElement *element =NULL ;
+	struct WorkingSetElement *temp_element =NULL ;
+
+
+	if(ws_size < curenv->page_WS_max_size)
+	{
+
+
+//Placement
+
+	//Active list if Full
+	if(active_size == curenv->ActiveListSize)
+	{
+
+		temp_element  = LIST_LAST(&curenv->ActiveList);
+
+
+
+		LIST_REMOVE(&curenv->ActiveList,temp_element);
+
+
+		pt_set_page_permissions(curenv,temp_element->virtual_address,0,PERM_PRESENT);
+
+
+		if(second_size == curenv->SecondListSize)
+		{
+
+			struct WorkingSetElement *victim;
+
+			victim = LIST_LAST(&curenv->SecondList);
+
+
+			LIST_REMOVE(&curenv->SecondList,victim);
+
+
+			curenv->page_last_WS_index--;
+		}
+
+
+		LIST_INSERT_HEAD(&curenv->SecondList,temp_element);
+
+
+		/***/
+		//search in second List
+			struct WorkingSetElement *temp;
+			LIST_FOREACH(temp, &(curenv->SecondList))
+			{
+
+				if(fault_va == temp->virtual_address)
+				{
+					//founded 1 change permeison then add to active list
+
+
+
+
+					LIST_REMOVE(&curenv->SecondList,temp);
+
+					pt_set_page_permissions(curenv,temp->virtual_address,PERM_PRESENT,0);
+
+					LIST_INSERT_HEAD(&curenv->ActiveList,temp);
+
+					return;
+				}
+
+			}
+
+
+			//ELSE
+			// pull element
+
+
+
+
+
+
+						struct Frame_Info *ptr_frame_info = NULL;
+							allocate_frame(&ptr_frame_info);
+
+							map_frame(curenv->env_page_directory,ptr_frame_info,(void*)fault_va,PERM_PRESENT | PERM_USER | PERM_WRITEABLE);
+
+			//search in disk
+			int ret = pf_read_env_page(curenv,(void*) fault_va);
+
+				cprintf("ret = %d" , ret);
+
+				//failed to find it in pageFIle
+							 if(ret == E_PAGE_NOT_EXIST_IN_PF)
+							{
+
+
+								 	 unmap_frame(curenv->env_page_directory,(void*)fault_va);
+
+								if(fault_va >= USTACKBOTTOM && fault_va < USTACKTOP)
+									{
+
+											int r = pf_add_empty_env_page(curenv,fault_va,1);
+
+											if(r ==0)
+											{
+												cprintf("working\n");
+											}
+
+										//LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+//												    cprintf("%d  : ws size \n",curenv->PageWorkingSetList.size);
 //
-//							if(ws_size<__PWS_MAX_SIZE)
-//								{
-//
-//									LIST_INSERT_HEAD(curenv->PageWorkingSetList,curenv->__uptr_pws);
-//								}
-//
-//						}
-//						}
+//												    char*text = NULL;
+//												    readline("hhhh\n",text);
+
+
+									}
+
+								else
+								{
+									panic("illegal memory address for user %x \n",fault_va);
+								}
+							}
+
+
+							 else if(ret ==0)
+							 			{
+
+
+								 struct WorkingSetElement *next_element;
+					//			next_element =  curenv->PageWorkingSetList.___ptr_next;
+								next_element = & curenv->ptr_pageWorkingSet[curenv->page_last_WS_index] ;
+
+								next_element ->virtual_address = ROUNDDOWN(fault_va,PAGE_SIZE);
+								next_element->empty = 0;
+								curenv->page_last_WS_index++;
+
+
+							 	pt_set_page_permissions(curenv,next_element->virtual_address,PERM_PRESENT,0);
+
+
+							 	LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+							 			}
 
 
 
 
-			    }
+		//return;
+	}
+
+	else
+	{
+
+
+		// pull element
+
+
+
+
+
+
+								struct Frame_Info *ptr_frame_info = NULL;
+									allocate_frame(&ptr_frame_info);
+
+									map_frame(curenv->env_page_directory,ptr_frame_info,(void*)fault_va,PERM_PRESENT | PERM_USER | PERM_WRITEABLE);
+
+					//search in disk
+					int ret = pf_read_env_page(curenv,(void*) fault_va);
+
+						cprintf("ret = %d" , ret);
+
+						//failed to find it in pageFIle
+									 if(ret == E_PAGE_NOT_EXIST_IN_PF)
+									{
+
+
+										 	 unmap_frame(curenv->env_page_directory,(void*)fault_va);
+
+										if(fault_va >= USTACKBOTTOM && fault_va < USTACKTOP)
+											{
+
+													int r = pf_add_empty_env_page(curenv,fault_va,1);
+
+													if(r ==0)
+													{
+														cprintf("working\n");
+													}
+
+												//LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+		//												    cprintf("%d  : ws size \n",curenv->PageWorkingSetList.size);
+		//
+		//												    char*text = NULL;
+		//												    readline("hhhh\n",text);
+
+
+											}
+
+										else
+										{
+											panic("illegal memory address for user %x \n",fault_va);
+										}
+									}
+
+
+									 else if(ret ==0)
+									 			{
+
+
+										 struct WorkingSetElement *next_element;
+							//			next_element =  curenv->PageWorkingSetList.___ptr_next;
+										next_element = & curenv->ptr_pageWorkingSet[curenv->page_last_WS_index] ;
+
+										next_element ->virtual_address = ROUNDDOWN(fault_va,PAGE_SIZE);
+										next_element->empty = 0;
+										curenv->page_last_WS_index++;
+
+									 				pt_set_page_permissions(curenv,next_element->virtual_address,PERM_PRESENT,0);
+
+
+									 							LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+
+									 //										char*text = NULL;
+									 //										readline("",text);
+
+									 			}
+
+
+
+
+				//return;
+	}
+
+
+
+
+	//uint32 va =
+	}
+
+	else
+	{
+		//search in second List
+					struct WorkingSetElement *temp , *temp_active , *victim;
+					LIST_FOREACH(temp, &(curenv->SecondList))
+					{
+
+						if(fault_va == temp->virtual_address)
+						{
+							//founded 1 change permeison then add to active list
+
+
+
+
+							LIST_REMOVE(&curenv->SecondList,temp);
+
+
+
+
+							temp_active = LIST_LAST(&curenv->ActiveList);
+
+							LIST_REMOVE(&curenv->ActiveList,temp_active);
+
+							pt_set_page_permissions(curenv,temp->virtual_address,PERM_PRESENT,0);
+
+							LIST_INSERT_HEAD(&curenv->ActiveList,temp);
+
+
+							pt_set_page_permissions(curenv,temp_active->virtual_address,0,PERM_PRESENT);
+							LIST_INSERT_HEAD(&curenv->SecondList,temp_active);
+
+							return;
+						}
+
+						}
+
+					victim = LIST_LAST(&curenv->SecondList);
+
+					//cprintf("second_size = %d",LIST_SIZE(&curenv->SecondList));
+
+					LIST_REMOVE(&curenv->SecondList,victim);
+					//cprintf("second_size after = %d",LIST_SIZE(&curenv->SecondList));
+
+					//curenv->page_last_WS_index--;
+
+					int modified =  victim->virtual_address & PERM_MODIFIED;
+
+					if(modified > 0)
+					{
+						struct Frame_Info *ptr_frame_info;
+							uint32 *ptr_page_table = NULL;
+						ptr_frame_info= get_frame_info(curenv->env_page_directory,(void*) victim->virtual_address,&ptr_page_table);
+						 pf_update_env_page(curenv,(void*) victim->virtual_address ,ptr_frame_info);
+					}
+
+					unmap_frame(curenv->env_page_directory,(void*) victim->virtual_address);
+
+
+					//Place again
+
+					//Placement
+						active_size = LIST_SIZE(&curenv->ActiveList);
+						second_size = LIST_SIZE(&curenv->SecondList);
+						ws_size = LIST_SIZE(&curenv->PageWorkingSetList);
+						//Active list if Full
+						if(active_size == curenv->ActiveListSize)
+						{
+
+							temp_element  = LIST_LAST(&curenv->ActiveList);
+
+
+
+							LIST_REMOVE(&curenv->ActiveList,temp_element);
+
+
+							pt_set_page_permissions(curenv,temp_element->virtual_address,0,PERM_PRESENT);
+
+
+							if(second_size == curenv->SecondListSize)
+							{
+
+								struct WorkingSetElement *victim;
+
+								victim = LIST_LAST(&curenv->SecondList);
+
+
+								LIST_REMOVE(&curenv->SecondList,victim);
+
+
+								curenv->page_last_WS_index--;
+							}
+
+
+							LIST_INSERT_HEAD(&curenv->SecondList,temp_element);
+
+
+							/***/
+							//search in second List
+								struct WorkingSetElement *temp;
+								LIST_FOREACH(temp, &(curenv->SecondList))
+								{
+
+									if(fault_va == temp->virtual_address)
+									{
+										//founded 1 change permeison then add to active list
+
+
+
+
+										LIST_REMOVE(&curenv->SecondList,temp);
+
+										pt_set_page_permissions(curenv,temp->virtual_address,PERM_PRESENT,0);
+
+										LIST_INSERT_HEAD(&curenv->ActiveList,temp);
+
+										return;
+									}
+
+								}
+
+
+								//ELSE
+								// pull element
+
+
+
+
+
+
+											struct Frame_Info *ptr_frame_info = NULL;
+												allocate_frame(&ptr_frame_info);
+
+												map_frame(curenv->env_page_directory,ptr_frame_info,(void*)fault_va,PERM_PRESENT | PERM_USER | PERM_WRITEABLE);
+
+								//search in disk
+								int ret = pf_read_env_page(curenv,(void*) fault_va);
+
+									cprintf("ret = %d" , ret);
+
+									//failed to find it in pageFIle
+												 if(ret == E_PAGE_NOT_EXIST_IN_PF)
+												{
+
+
+													 	 unmap_frame(curenv->env_page_directory,(void*)fault_va);
+
+													if(fault_va >= USTACKBOTTOM && fault_va < USTACKTOP)
+														{
+
+																int r = pf_add_empty_env_page(curenv,fault_va,1);
+
+																if(r ==0)
+																{
+																	cprintf("working\n");
+																}
+
+															//LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+					//												    cprintf("%d  : ws size \n",curenv->PageWorkingSetList.size);
+					//
+					//												    char*text = NULL;
+					//												    readline("hhhh\n",text);
+
+
+														}
+
+													else
+													{
+														panic("invaild access %x",fault_va);
+													}
+												}
+
+
+												 else if(ret ==0)
+												 			{
+
+
+													 struct WorkingSetElement *next_element;
+										//			next_element =  curenv->PageWorkingSetList.___ptr_next;
+													next_element = & curenv->ptr_pageWorkingSet[curenv->page_last_WS_index] ;
+
+													next_element ->virtual_address = ROUNDDOWN(fault_va,PAGE_SIZE);
+													next_element->empty = 0;
+													curenv->page_last_WS_index++;
+
+
+												 	pt_set_page_permissions(curenv,next_element->virtual_address,PERM_PRESENT,0);
+
+
+												 	LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+												 			}
+
+
+
+
+							//return;
+						}
+
+						else
+						{
+
+
+							// pull element
+
+
+
+
+
+
+													struct Frame_Info *ptr_frame_info = NULL;
+														allocate_frame(&ptr_frame_info);
+
+														map_frame(curenv->env_page_directory,ptr_frame_info,(void*)fault_va,PERM_PRESENT | PERM_USER | PERM_WRITEABLE);
+
+										//search in disk
+										int ret = pf_read_env_page(curenv,(void*) fault_va);
+
+											cprintf("ret = %d" , ret);
+
+											//failed to find it in pageFIle
+														 if(ret == E_PAGE_NOT_EXIST_IN_PF)
+														{
+
+
+															 	 unmap_frame(curenv->env_page_directory,(void*)fault_va);
+
+															if(fault_va >= USTACKBOTTOM && fault_va < USTACKTOP)
+																{
+
+																		int r = pf_add_empty_env_page(curenv,fault_va,1);
+
+																		if(r ==0)
+																		{
+																			cprintf("working\n");
+																		}
+
+																	//LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+							//												    cprintf("%d  : ws size \n",curenv->PageWorkingSetList.size);
+							//
+							//												    char*text = NULL;
+							//												    readline("hhhh\n",text);
+
+
+																}
+
+															else
+															{
+																panic("illegal memory address for user %x \n",fault_va);
+															}
+														}
+
+
+														 else if(ret ==0)
+														 			{
+
+
+															 struct WorkingSetElement *next_element;
+												//			next_element =  curenv->PageWorkingSetList.___ptr_next;
+															next_element = & curenv->ptr_pageWorkingSet[curenv->page_last_WS_index] ;
+
+															next_element ->virtual_address = ROUNDDOWN(fault_va,PAGE_SIZE);
+															next_element->empty = 0;
+															curenv->page_last_WS_index++;
+
+														 				pt_set_page_permissions(curenv,next_element->virtual_address,PERM_PRESENT,0);
+
+
+														 							LIST_INSERT_HEAD(&curenv->ActiveList,next_element);
+
+
+														 //										char*text = NULL;
+														 //										readline("",text);
+
+														 			}
+
+
+
+
+									//return;
+						}
+
+
+
+
+						//uint32 va =
+
+
+
+
+
+
+
+
+	}
+
 }
 
 
